@@ -18,6 +18,9 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/scheduler
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 // --- API ROUTES ---
+app.get('/api/test', (req, res) => {
+  res.send('Hello World');
+});
 
 // Whoami route to check if user is admin
 app.post('/api/whoami', (req, res) => {
