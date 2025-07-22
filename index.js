@@ -15,7 +15,7 @@ app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/scheduler', { useNewUrlParser: true, useUnifiedTopology: true });
 
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.BOT_TOKEN); // Remove polling: true
 
 // --- API ROUTES ---
 app.get('/api/test', (req, res) => {
@@ -115,6 +115,23 @@ bot.on('callback_query', async (query) => {
     await Slot.findByIdAndUpdate(booking.slot._id, { available: true });
   }
   bot.answerCallbackQuery(query.id, { text: `Booking ${action}d.` });
+});
+
+// Webhook endpoint for Telegram
+app.post('/api/bot', (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// Helper endpoint to set webhook (call this once after deploy)
+app.get('/set-webhook', async (req, res) => {
+  const url = `${process.env.FRONTEND_URL}/api/bot`;
+  try {
+    await bot.setWebHook(url);
+    res.send(`Webhook set to ${url}`);
+  } catch (err) {
+    res.status(500).send('Failed to set webhook: ' + err.message);
+  }
 });
 
 // Start server
