@@ -107,12 +107,27 @@ bot.on('callback_query', async (query) => {
     booking.status = 'approved';
     await booking.save();
     bot.sendMessage(booking.user.telegramId, `Your booking for ${booking.slot.date} at ${booking.slot.time} is approved!`);
+    // Edit the original message to show it's approved
+    bot.editMessageText(
+      `Booking for ${booking.user.name} (${booking.slot.date} ${booking.slot.time}) has been approved.`,
+      {
+        chat_id: query.message.chat.id,
+        message_id: query.message.message_id,
+      }
+    );
   } else if (action === 'decline') {
     booking.status = 'declined';
     await booking.save();
     bot.sendMessage(booking.user.telegramId, `Sorry, your booking for ${booking.slot.date} at ${booking.slot.time} was declined.`);
-    // Optionally, make slot available again
     await Slot.findByIdAndUpdate(booking.slot._id, { available: true });
+    // Edit the original message to show it's declined
+    bot.editMessageText(
+      `Booking for ${booking.user.name} (${booking.slot.date} ${booking.slot.time}) has been declined.`,
+      {
+        chat_id: query.message.chat.id,
+        message_id: query.message.message_id,
+      }
+    );
   }
   bot.answerCallbackQuery(query.id, { text: `Booking ${action}d.` });
 });
