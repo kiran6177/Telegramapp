@@ -125,7 +125,7 @@ app.post('/api/bot', (req, res) => {
 
 // Helper endpoint to set webhook (call this once after deploy)
 app.get('/set-webhook', async (req, res) => {
-  const url = `${process.env.FRONTEND_URL}/api/bot`;
+  const url = `${process.env.BACKEND_URL}/api/bot`;
   try {
     await bot.setWebHook(url);
     res.send(`Webhook set to ${url}`);
