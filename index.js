@@ -92,17 +92,22 @@ app.get('/api/bookings', isAdmin, async (req, res) => {
 bot.on('message', (msg) => {
   console.log('User ID:', msg.from.id);
   // Optionally, reply to the user with their ID:
-  bot.sendMessage(msg.chat.id, `Your Telegram user ID is: ${msg.from.id}`);
+  bot.sendMessage(msg.chat.id, `Welcome to **Value at Void**`);
 });
 
 // Add this after bot initialization
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, "Welcome! Click below to book a call.", {
+  const isCeo = msg.from.id && msg.from.id.toString() === process.env.CEO_TELEGRAM_ID;
+  const buttonText = isCeo ? 'Explore Appointments' : 'Book a Call';
+  const welcomeText = isCeo
+    ? 'Welcome San! Use the button below to explore all appointments.'
+    : 'Welcome! Click below to book a call.';
+  bot.sendMessage(msg.chat.id, welcomeText, {
     reply_markup: {
       inline_keyboard: [
         [
           {
-            text: "Book a Call",
+            text: buttonText,
             web_app: { url: process.env.FRONTEND_URL }
           }
         ]
