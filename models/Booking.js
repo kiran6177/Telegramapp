@@ -5,4 +5,4 @@ const BookingSchema = new mongoose.Schema({
   motive: String,
   status: { type: String, enum: ['pending', 'approved', 'declined'], default: 'pending' }
 });
-module.exports = mongoose.model('Booking', BookingSchema); 
+module.exports = mongoose.model('Booking', BookingSchema);  

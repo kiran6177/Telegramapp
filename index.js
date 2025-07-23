@@ -125,7 +125,7 @@ bot.on('callback_query', async (query) => {
     bot.editMessageText(
       `Booking for ${booking.user.name} (${formatSlotDateTime(booking.slot.datetimeUtc)}) has been approved.`,
       {
-        chat_id: query.message.chat.id,
+        chat_id: query.message.chat.id, 
         message_id: query.message.message_id,
       }
     );
