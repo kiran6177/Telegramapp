@@ -156,12 +156,12 @@ app.listen(PORT, async () => {
 });
 
 // Helper endpoint to set webhook (call this once after deploy)
-// app.get('/set-webhook', async (req, res) => {
-//   const url = `${process.env.BACKEND_URL}/api/bot`;
-//   try {
-//     await bot.setWebHook(url);
-//     res.send(`Webhook set to ${url}`);
-//   } catch (err) {
-//     res.status(500).send('Failed to set webhook: ' + err.message);
-//   }
-// }); 
+app.get('/set-webhook', async (req, res) => {
+  const url = `${process.env.BACKEND_URL}/api/bot`;
+  try {
+    await bot.setWebHook(url);
+    res.send(`Webhook set to ${url}`);
+  } catch (err) {
+    res.status(500).send('Failed to set webhook: ' + err.message);
+  }
+}); 
