@@ -17,6 +17,17 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/scheduler
 
 const bot = new TelegramBot(process.env.BOT_TOKEN); // Remove polling: true
 
+// Helper to format slot datetimeUtc
+function formatSlotDateTime(utcString) {
+  if (!utcString) return '';
+  const d = new Date(utcString);
+  return d.toLocaleString('en-IN', {
+    day: '2-digit', month: 'long', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+    timeZone: 'Asia/Kolkata'
+  }).replace(/, (\d{1,2}):([0-5][0-9]) (AM|PM)/, (m, h, min, ap) => `, ${h}${min !== '00' ? ':' + min : ''} ${ap}`);
+}
+
 // --- API ROUTES ---
 app.get('/api/test', (req, res) => {
   res.send('Hello World');
@@ -109,10 +120,10 @@ bot.on('callback_query', async (query) => {
   if (action === 'approve') {
     booking.status = 'approved';
     await booking.save();
-    bot.sendMessage(booking.user.telegramId, `Your booking for ${booking.slot.date} at ${booking.slot.time} is approved!`);
+    bot.sendMessage(booking.user.telegramId, `Your appointment with Value at Void for ${formatSlotDateTime(booking.slot.datetimeUtc)} is approved!`);
     // Edit the original message to show it's approved
     bot.editMessageText(
-      `Booking for ${booking.user.name} (${booking.slot.date} ${booking.slot.time}) has been approved.`,
+      `Booking for ${booking.user.name} (${formatSlotDateTime(booking.slot.datetimeUtc)}) has been approved.`,
       {
         chat_id: query.message.chat.id,
         message_id: query.message.message_id,
@@ -121,11 +132,11 @@ bot.on('callback_query', async (query) => {
   } else if (action === 'decline') {
     booking.status = 'declined';
     await booking.save();
-    bot.sendMessage(booking.user.telegramId, `Sorry, your booking for ${booking.slot.date} at ${booking.slot.time} was declined.`);
+    bot.sendMessage(booking.user.telegramId, `Sorry, your booking with Value at Void for ${formatSlotDateTime(booking.slot.datetimeUtc)} was declined.`);
     await Slot.findByIdAndUpdate(booking.slot._id, { available: true });
     // Edit the original message to show it's declined
     bot.editMessageText(
-      `Booking for ${booking.user.name} (${booking.slot.date} ${booking.slot.time}) has been declined.`,
+      `Booking for ${booking.user.name} (${formatSlotDateTime(booking.slot.datetimeUtc)}) has been declined.`,
       {
         chat_id: query.message.chat.id,
         message_id: query.message.message_id,
