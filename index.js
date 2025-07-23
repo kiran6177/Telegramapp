@@ -39,8 +39,11 @@ app.get('/api/slots', async (req, res) => {
 
 // Admin: Add slot (protected)
 app.post('/api/slots', isAdmin, async (req, res) => {
-  const { date, time } = req.body;
-  const slot = new Slot({ date, time });
+  const { datetimeUtc } = req.body;
+  if (!datetimeUtc) {
+    return res.status(400).json({ error: 'datetimeUtc is required' });
+  }
+  const slot = new Slot({ datetimeUtc: new Date(datetimeUtc) });
   await slot.save();
   res.json(slot);
 });
@@ -138,17 +141,27 @@ app.post('/api/bot', (req, res) => {
   res.sendStatus(200);
 });
 
-// Helper endpoint to set webhook (call this once after deploy)
-app.get('/set-webhook', async (req, res) => {
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, async () => {
+  console.log(`Backend running on port ${PORT}`);
+  // Automatically set Telegram webhook on server startup
   const url = `${process.env.BACKEND_URL}/api/bot`;
   try {
     await bot.setWebHook(url);
-    res.send(`Webhook set to ${url}`);
+    console.log(`Telegram webhook set to ${url}`);
   } catch (err) {
-    res.status(500).send('Failed to set webhook: ' + err.message);
+    console.error('Failed to set Telegram webhook:', err.message);
   }
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`)); 
+// Helper endpoint to set webhook (call this once after deploy)
+// app.get('/set-webhook', async (req, res) => {
+//   const url = `${process.env.BACKEND_URL}/api/bot`;
+//   try {
+//     await bot.setWebHook(url);
+//     res.send(`Webhook set to ${url}`);
+//   } catch (err) {
+//     res.status(500).send('Failed to set webhook: ' + err.message);
+//   }
+// }); 
