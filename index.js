@@ -44,7 +44,7 @@ app.post('/api/whoami', (req, res) => {
 
 // Get available slots (public)
 app.get('/api/slots', async (req, res) => {
-  const slots = await Slot.find({ available: true });
+  const slots = await Slot.find({ datetimeUtc: { $gte: new Date() }, available: true });
   res.json(slots);
 });
 
@@ -92,7 +92,7 @@ app.get('/api/bookings', isAdmin, async (req, res) => {
 bot.on('message', (msg) => {
   console.log('User ID:', msg.from.id);
   // Optionally, reply to the user with their ID:
-  bot.sendMessage(msg.chat.id, `Welcome to **Value at Void**`);
+  bot.sendMessage(msg.chat.id, `Welcome to Value at Void`);
 });
 
 // Add this after bot initialization
