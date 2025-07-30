@@ -86,7 +86,7 @@ app.post('/api/bookings', async (req, res) => {
 // Admin: Get all bookings (protected)
 app.get('/api/bookings', isAdmin, async (req, res) => {
   const bookings = await Booking.find().populate('user').populate('slot');
-  res.json(bookings);
+  res.json(bookings.filter(booking => booking.slot.datetimeUtc > new Date()));
 });
 
 bot.on('message', (msg) => {
